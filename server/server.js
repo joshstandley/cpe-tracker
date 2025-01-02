@@ -25,7 +25,7 @@ const pool = new Pool({
 // Register route
 app.post("/register", async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { firstName, lastName, email, password } = req.body;
 
         // Check if user already exists
         const userCheck = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
@@ -38,8 +38,8 @@ app.post("/register", async (req, res) => {
 
         // Insert the new user
         const newUser = await pool.query(
-            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-            [name, email, hashedPassword]
+            "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
+            [firstName, lastName, email, hashedPassword]
         );
 
         // Return the new user (without password)

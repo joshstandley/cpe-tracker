@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../styles/login.css";  // Corrected path to lowercase 'login.css'
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -9,7 +10,7 @@ function Login() {
   });
 
   const [error, setError] = useState("");
-  const navigate = useNavigate();  // Hook for programmatically navigating
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -25,7 +26,6 @@ function Login() {
       const response = await axios.post("/api/login", formData);
 
       if (response.status === 200) {
-        // After successful login, redirect to the dashboard
         navigate("/dashboard");
       }
     } catch (err) {
@@ -34,9 +34,9 @@ function Login() {
   };
 
   return (
-    <div>
+    <div className="form-container">
       <h2>Login</h2>
-      {error && <p>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">Email</label>
