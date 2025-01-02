@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
-const bcrypt = require("bcrypt");
 
 dotenv.config();
 
@@ -22,62 +21,25 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-// Register route
-app.post("/register", async (req, res) => {
+// Attach the pool to the app for use in routes
+app.locals.pool = pool;
+
+// Import routes
+const registerRoute = require("./routes/register");
+const loginRoute = require("./routes/login");
+
+// Route setup
+app.use("/api/register", registerRoute);
+app.use("/api/login", loginRoute);
+
+// Health check for debugging
+app.get("/api/db-test", async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body;
-
-        // Check if user already exists
-        const userCheck = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-        if (userCheck.rows.length > 0) {
-            return res.status(400).json({ message: "User already exists" });
-        }
-
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insert the new user
-        const newUser = await pool.query(
-            "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
-            [firstName, lastName, email, hashedPassword]
-        );
-
-        // Return the new user (without password)
-        const { password: _, ...userData } = newUser.rows[0];
-        res.status(201).json(userData); // Send back the new user data, excluding the password
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: "Server error" });
-    }
-});
-
-// Login route
-app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        // Check if user exists
-        const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-
-        if (userResult.rows.length === 0) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
-
-        const user = userResult.rows[0];
-
-        // Compare password with the hashed password in the database
-        const match = await bcrypt.compare(password, user.password);
-
-        if (!match) {
-            return res.status(400).json({ message: "Invalid credentials" });
-        }
-
-        // Send back user data (excluding the password)
-        const { password: _, ...userData } = user;
-        res.status(200).json(userData); // Successful login
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: "Server error" });
+        const result = await pool.query("SELECT NOW()");
+        res.status(200).json({ message: "Database connection successful", result: result.rows });
+    } catch (error) {
+        console.error("Database connection error:", error);
+        res.status(500).json({ message: "Database connection error", error: error.message });
     }
 });
 

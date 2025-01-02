@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
-import "../styles/register.css";  // Corrected path to lowercase 'register.css'
+import axios from "../axios"; // Use configured axios instance
+import "../styles/register.css";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -24,7 +24,6 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if the passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -39,14 +38,14 @@ function Register() {
       });
 
       if (response.status === 201) {
-        setSuccess("Registration successful! Please login.");
-        setError("");  // Clear any previous errors
+        setSuccess("Registration successful! Redirecting to login...");
+        setError("");
         setTimeout(() => {
           window.location.href = "/login";
         }, 2000);
       }
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      setError(err.response?.data?.message || "Registration failed. Try again.");
     }
   };
 

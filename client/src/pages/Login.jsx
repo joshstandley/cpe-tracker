@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "../styles/login.css";  // Corrected path to lowercase 'login.css'
+import axios from "../axios"; // Use configured axios instance
+import "../styles/login.css";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -26,10 +26,11 @@ function Login() {
       const response = await axios.post("/api/login", formData);
 
       if (response.status === 200) {
+        localStorage.setItem("authToken", response.data.token);
         navigate("/dashboard");
       }
     } catch (err) {
-      setError("Login failed. Please check your credentials.");
+      setError(err.response?.data?.message || "Login failed. Check credentials.");
     }
   };
 

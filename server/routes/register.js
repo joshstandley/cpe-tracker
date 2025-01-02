@@ -1,38 +1,40 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const pool = require("../db"); // Assuming you have a PostgreSQL pool instance
 const router = express.Router();
 
 // Register route
 router.post("/", async (req, res) => {
-  const { username, email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
-  // Validate user data (simple validation)
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+    if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
 
-  try {
-    // Hash the password using bcrypt
-    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+        const pool = req.app.locals.pool;
 
-    // Insert the new user into the database
-    const result = await pool.query(
-      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email",
-      [username, email, hashedPassword]
-    );
+        // Check if user already exists
+        const userCheck = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (userCheck.rows.length > 0) {
+            return res.status(400).json({ message: "User already exists" });
+        }
 
-    const newUser = result.rows[0];
-    // Respond with user data (excluding password)
-    res.status(201).json({
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-    });
-  } catch (err) {
-    console.error("Error during user registration:", err);
-    res.status(500).json({ message: "Server error" });
-  }
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert the new user
+        const newUser = await pool.query(
+            "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING *",
+            [firstName, lastName, email, hashedPassword]
+        );
+
+        // Return the new user (without password)
+        const { password: _, ...userData } = newUser.rows[0];
+        res.status(201).json(userData);
+    } catch (err) {
+        console.error("Error during user registration:", err);
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 module.exports = router;
