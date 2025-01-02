@@ -1,16 +1,29 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axiosWithAuth from "../utils/axiosWithAuth";
 
 function Dashboard() {
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
   useEffect(() => {
-    // You can fetch data here (e.g., user info, CPE credits)
-    console.log("Dashboard loaded");
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axiosWithAuth().get("/dashboard");
+        setMessage(response.data.message);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+        navigate("/login");
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
 
   return (
     <div>
-      <h2>Welcome to your Dashboard</h2>
-      <p>Here you can manage your CPE credits.</p>
-      {/* You can add more sections or data here as needed */}
+      <h1>Dashboard</h1>
+      <p>{message}</p>
     </div>
   );
 }
