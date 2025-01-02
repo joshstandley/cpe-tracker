@@ -1,23 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./../styles/navbar.css";
 
 function Navbar() {
   return (
-    <nav style={{ display: "flex", justifyContent: "space-between", padding: "1rem", backgroundColor: "#f8f9fa", borderBottom: "1px solid #ddd" }}>
-      <div style={{ fontWeight: "bold", fontSize: "1.2rem" }}>
-        CPE Tracker
-      </div>
-      <div>
-        <Link to="/" style={{ marginRight: "1rem", textDecoration: "none", color: "#333" }}>
-          Home
-        </Link>
-        <Link to="/register" style={{ marginRight: "1rem", textDecoration: "none", color: "#333" }}>
-          Register
-        </Link>
-        <Link to="/login" style={{ textDecoration: "none", color: "#333" }}>
-          Login
-        </Link>
-      </div>
+    <nav>
+      <div className="logo">CPE Tracker</div>
+      <ul className="menu">
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/register">Register</Link>
+        </li>
+        <li>
+          <Link to="/login">Login</Link>
+        </li>
+      </ul>
     </nav>
   );
 }
