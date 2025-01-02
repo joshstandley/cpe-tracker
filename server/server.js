@@ -22,7 +22,7 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-// Routes
+// Register route
 app.post("/register", async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -42,7 +42,39 @@ app.post("/register", async (req, res) => {
             [name, email, hashedPassword]
         );
 
-        res.status(201).json(newUser.rows[0]);
+        // Return the new user (without password)
+        const { password: _, ...userData } = newUser.rows[0];
+        res.status(201).json(userData); // Send back the new user data, excluding the password
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// Login route
+app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Check if user exists
+        const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+
+        if (userResult.rows.length === 0) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        const user = userResult.rows[0];
+
+        // Compare password with the hashed password in the database
+        const match = await bcrypt.compare(password, user.password);
+
+        if (!match) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        // Send back user data (excluding the password)
+        const { password: _, ...userData } = user;
+        res.status(200).json(userData); // Successful login
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ message: "Server error" });
