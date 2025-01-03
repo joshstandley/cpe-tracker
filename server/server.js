@@ -35,6 +35,8 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Routes
+
 // Fetch credentials
 app.get("/api/credentials", async (req, res) => {
   try {
@@ -48,25 +50,45 @@ app.get("/api/credentials", async (req, res) => {
 
 // Save user-selected credentials
 app.post("/api/user/credentials", authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const { selectedCredentials } = req.body;
+
+  if (!Array.isArray(selectedCredentials)) {
+    return res.status(400).json({ message: "Invalid data format." });
+  }
+
   try {
-    const { selectedCredentials } = req.body;
+    // Delete existing credentials for the user
+    await pool.query("DELETE FROM user_credentials WHERE user_id = $1", [userId]);
 
-    // Delete existing user credentials
-    await pool.query("DELETE FROM user_credentials WHERE user_id = $1", [req.user.id]);
+    // Insert new credentials
+    const insertValues = selectedCredentials.map((credentialId) => `(${userId}, ${credentialId})`).join(",");
+    await pool.query(`INSERT INTO user_credentials (user_id, credential_id) VALUES ${insertValues}`);
 
-    // Insert the new user credentials
-    const insertQuery = `
-      INSERT INTO user_credentials (user_id, credential_id) 
-      VALUES ($1, $2)
-    `;
-    for (const credentialId of selectedCredentials) {
-      await pool.query(insertQuery, [req.user.id, credentialId]);
-    }
-
-    res.status(200).json({ message: "User credentials saved successfully." });
+    res.status(200).json({ message: "Credentials saved successfully." });
   } catch (err) {
     console.error("Error saving user credentials:", err.message);
-    res.status(500).json({ message: "Server error while saving user credentials." });
+    res.status(500).json({ message: "Failed to save credentials." });
+  }
+});
+
+// Fetch user credentials
+app.get("/api/user/credentials", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const query = `
+      SELECT c.id, c.name
+      FROM user_credentials uc
+      INNER JOIN credentials c ON uc.credential_id = c.id
+      WHERE uc.user_id = $1
+    `;
+    const result = await pool.query(query, [userId]);
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Error fetching user credentials:", err.message);
+    res.status(500).json({ message: "Failed to fetch user credentials." });
   }
 });
 
