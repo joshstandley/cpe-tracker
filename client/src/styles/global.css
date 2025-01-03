@@ -9,11 +9,11 @@
 
 /* Root Variables for Colors */
 :root {
-  --primary-color: #2A3E4C; /* Deep, muted blue-gray */
-  --secondary-color: #AEDFF7; /* Light, fresh blue */
-  --accent-color: #FFC857; /* Warm, golden yellow */
-  --background-color: #F5F5F5; /* Neutral light gray */
-  --text-color: #333333; /* Dark gray */
+  --primary-color: #2A3E4C;
+  --secondary-color: #AEDFF7;
+  --accent-color: #FFC857;
+  --background-color: #F5F5F5;
+  --text-color: #333333;
 }
 
 /* Body Styles */
@@ -25,6 +25,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Links */
