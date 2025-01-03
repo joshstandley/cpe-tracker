@@ -26,7 +26,8 @@ function Login({ setAuth }) { // Accept setAuth as a prop
       const response = await axios.post("/api/login", formData);
 
       if (response.status === 200) {
-        localStorage.setItem("authToken", response.data.token);
+        // Store the token in localStorage
+        localStorage.setItem("token", response.data.token);
         setAuth(true); // Update the authentication state
         navigate("/dashboard"); // Redirect to the dashboard
       }
