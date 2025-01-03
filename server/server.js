@@ -134,21 +134,23 @@ app.get("/api/user/credentials", authenticateToken, async (req, res) => {
       SELECT
         c.id AS credential_id,
         c.name AS credential_name,
+        c.total_hours_required AS total_required_hours,
         COALESCE(SUM(uc.hours), 0) AS completed_hours,
-        rc.required_hours AS total_required_hours,
-        json_agg(json_build_object(
-          'name', ct.name,
-          'completedHours', COALESCE(SUM(uc.hours) FILTER (WHERE uc.cpe_type_id = ct.id), 0),
-          'requiredHours', rct.required_hours
-        )) AS cpe_types
-      FROM credentials c
-      LEFT JOIN required_credits rc ON rc.credential_id = c.id
-      LEFT JOIN user_credentials ucr ON ucr.credential_id = c.id AND ucr.user_id = $1
-      LEFT JOIN cpe_types ct ON ct.credential_id = c.id
-      LEFT JOIN required_credits_types rct ON rct.cpe_type_id = ct.id
-      LEFT JOIN user_cpe_credits uc ON uc.cpe_type_id = ct.id AND uc.user_id = ucr.user_id
-      WHERE c.id IN (SELECT credential_id FROM user_credentials WHERE user_id = $1)
-      GROUP BY c.id, rc.required_hours
+        json_agg(
+          json_build_object(
+            'typeId', cr.cpe_type_id,
+            'typeName', ct.name,
+            'completedHours', COALESCE(SUM(uc.hours) FILTER (WHERE uc.cpe_type_id = cr.cpe_type_id), 0),
+            'requiredHours', cr.required_hours
+          )
+        ) AS cpe_types
+      FROM user_credentials ucr
+      JOIN credentials c ON ucr.credential_id = c.id
+      LEFT JOIN credential_requirements cr ON cr.credential_id = c.id
+      LEFT JOIN cpe_types ct ON ct.id = cr.cpe_type_id
+      LEFT JOIN user_cpe_credits uc ON uc.cpe_type_id = ct.id AND uc.user_id = $1
+      WHERE ucr.user_id = $1
+      GROUP BY c.id
     `;
 
     const result = await pool.query(query, [userId]);
@@ -157,8 +159,8 @@ app.get("/api/user/credentials", authenticateToken, async (req, res) => {
       result.rows.map((row) => ({
         id: row.credential_id,
         name: row.credential_name,
-        completedHours: row.completed_hours,
-        requiredHours: row.total_required_hours || "TBD",
+        completedHours: parseFloat(row.completed_hours) || 0,
+        requiredHours: parseFloat(row.total_required_hours) || "TBD",
         cpeTypes: row.cpe_types || [],
       }))
     );

@@ -25,14 +25,7 @@ function Dashboard() {
     const fetchUserCredentials = async () => {
       try {
         const response = await axiosWithAuth().get("/api/user/credentials");
-        setUserCredentials(
-          response.data.map((credential) => ({
-            ...credential,
-            completedHours: credential.completedHours || 0,
-            requiredHours: credential.requiredHours || "TBD",
-            cpeTypes: credential.cpeTypes || [],
-          }))
-        );
+        setUserCredentials(response.data || []);
       } catch (err) {
         console.error("Error fetching user credentials:", err.message);
       }
@@ -51,7 +44,7 @@ function Dashboard() {
 
         <section className="cpe-progress-section">
           <h2>Your CPE Progress</h2>
-          {userCredentials?.length > 0 ? (
+          {userCredentials.length > 0 ? (
             <div className="cpe-progress-container">
               {userCredentials.map((credential) => (
                 <CredentialCard key={credential.id} credential={credential} />
