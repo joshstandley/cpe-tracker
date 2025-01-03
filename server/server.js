@@ -126,21 +126,45 @@ app.get("/api/cpe-types", async (req, res) => {
 });
 
 // Fetch all CPE credits for a user
-app.get("/api/cpe-credits", authenticateToken, async (req, res) => {
+app.get("/api/user/credentials", authenticateToken, async (req, res) => {
   try {
-    const userCredits = await pool.query(
-      `SELECT c.id, c.hours, c.delivery_method, c.date_completed, ct.name AS cpe_type, cr.name AS credential 
-       FROM user_cpe_credits c
-       JOIN cpe_types ct ON c.cpe_type_id = ct.id
-       JOIN credentials cr ON c.credential_id = cr.id
-       WHERE c.user_id = $1`,
-      [req.user.id]
-    );
+    const userId = req.user.id;
 
-    res.status(200).json({ credits: userCredits.rows });
+    const query = `
+      SELECT
+        c.id AS credential_id,
+        c.name AS credential_name,
+        COALESCE(SUM(uc.hours), 0) AS completed_hours,
+        rc.required_hours AS total_required_hours,
+        json_agg(json_build_object(
+          'name', ct.name,
+          'completedHours', COALESCE(SUM(uc.hours) FILTER (WHERE uc.cpe_type_id = ct.id), 0),
+          'requiredHours', rct.required_hours
+        )) AS cpe_types
+      FROM credentials c
+      LEFT JOIN required_credits rc ON rc.credential_id = c.id
+      LEFT JOIN user_credentials ucr ON ucr.credential_id = c.id AND ucr.user_id = $1
+      LEFT JOIN cpe_types ct ON ct.credential_id = c.id
+      LEFT JOIN required_credits_types rct ON rct.cpe_type_id = ct.id
+      LEFT JOIN user_cpe_credits uc ON uc.cpe_type_id = ct.id AND uc.user_id = ucr.user_id
+      WHERE c.id IN (SELECT credential_id FROM user_credentials WHERE user_id = $1)
+      GROUP BY c.id, rc.required_hours
+    `;
+
+    const result = await pool.query(query, [userId]);
+
+    res.status(200).json(
+      result.rows.map((row) => ({
+        id: row.credential_id,
+        name: row.credential_name,
+        completedHours: row.completed_hours,
+        requiredHours: row.total_required_hours || "TBD",
+        cpeTypes: row.cpe_types || [],
+      }))
+    );
   } catch (err) {
-    console.error("Error fetching CPE credits:", err.message);
-    res.status(500).json({ message: "Failed to fetch CPE credits." });
+    console.error("Error fetching user credentials with progress:", err.message);
+    res.status(500).json({ message: "Failed to fetch user credential progress." });
   }
 });
 

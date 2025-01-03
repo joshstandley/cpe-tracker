@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosWithAuth from "../utils/axiosWithAuth";
 import WelcomeSection from "../components/WelcomeSection";
 import CPECreditsSection from "../components/CPECreditsSection";
+import CredentialCard from "../components/CredentialCard";
 import "../styles/dashboard.css";
 
 function Dashboard() {
@@ -24,7 +25,14 @@ function Dashboard() {
     const fetchUserCredentials = async () => {
       try {
         const response = await axiosWithAuth().get("/api/user/credentials");
-        setUserCredentials(response.data || []);
+        setUserCredentials(
+          response.data.map((credential) => ({
+            ...credential,
+            completedHours: credential.completedHours || 0,
+            requiredHours: credential.requiredHours || "TBD",
+            cpeTypes: credential.cpeTypes || [],
+          }))
+        );
       } catch (err) {
         console.error("Error fetching user credentials:", err.message);
       }
@@ -46,30 +54,7 @@ function Dashboard() {
           {userCredentials?.length > 0 ? (
             <div className="cpe-progress-container">
               {userCredentials.map((credential) => (
-                <div key={credential.id} className="cpe-progress-card">
-                  <div className="credential-header">
-                    <h3>{credential.name}</h3>
-                  </div>
-                  <div className="progress-details">
-                    <p>
-                      Completed: <strong>{credential.completed || 0}</strong> /{" "}
-                      {credential.required || "TBD"} hours
-                    </p>
-                    <div className="progress-bar-container">
-                      <div
-                        className="progress-bar"
-                        style={{
-                          width: `${
-                            (credential.completed / credential.required) * 100 || 0
-                          }%`,
-                        }}
-                      ></div>
-                    </div>
-                    <p className="deadline">
-                      Deadline: {credential.deadline || "No deadline set"}
-                    </p>
-                  </div>
-                </div>
+                <CredentialCard key={credential.id} credential={credential} />
               ))}
             </div>
           ) : (
