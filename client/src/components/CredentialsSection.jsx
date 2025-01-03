@@ -1,48 +1,35 @@
-import React, { useState } from "react";
-import "../styles/credentialsSection.css";
+import React, { useEffect, useState } from "react";
+import axiosWithAuth from "../utils/axiosWithAuth";
+import "../styles/credentialSelection.css";
 
 function CredentialsSection() {
-  const [credentialType, setCredentialType] = useState("");
   const [credentials, setCredentials] = useState([]);
+  const [error, setError] = useState("");
 
-  const credentialOptions = ["CPA", "EA", "ABA"]; // Add more as needed
+  useEffect(() => {
+    const fetchCredentials = async () => {
+      try {
+        const response = await axiosWithAuth().get("/api/credentials");
+        setCredentials(response.data);
+      } catch (err) {
+        console.error("Failed to load credentials:", err);
+        setError("Failed to load credentials. Please try again.");
+      }
+    };
 
-  const handleAddCredential = () => {
-    if (credentialType && !credentials.includes(credentialType)) {
-      setCredentials([...credentials, credentialType]);
-      setCredentialType(""); // Clear the selection
-    }
-  };
+    fetchCredentials();
+  }, []);
 
-  const handleRemoveCredential = (type) => {
-    setCredentials(credentials.filter((cred) => cred !== type));
-  };
+  if (error) {
+    return <p>{error}</p>;
+  }
 
   return (
-    <div className="credentials-section">
-      <h2>Manage Your Credentials</h2>
-      <div className="add-credential">
-        <select
-          value={credentialType}
-          onChange={(e) => setCredentialType(e.target.value)}
-        >
-          <option value="">Select a credential</option>
-          {credentialOptions.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <button onClick={handleAddCredential}>Add Credential</button>
-      </div>
-      <ul className="credentials-list">
-        {credentials.map((type, index) => (
-          <li key={index}>
-            {type}{" "}
-            <button onClick={() => handleRemoveCredential(type)}>
-              Remove
-            </button>
-          </li>
+    <div className="credential-section">
+      <h2>Select Your Credentials</h2>
+      <ul>
+        {credentials.map((cred) => (
+          <li key={cred.id}>{cred.name}</li>
         ))}
       </ul>
     </div>

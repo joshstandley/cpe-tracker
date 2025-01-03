@@ -27,7 +27,7 @@ function Dashboard() {
     <div className="dashboard-container">
       <WelcomeSection />
       <div className="dashboard-content">
-        <h1>Dashboard</h1>
+        <h2>Your Dashboard</h2>
         <p>{message}</p>
         <CredentialsSection />
       </div>
