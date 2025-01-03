@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../axios"; // Use configured axios instance
 import "../styles/login.css";
 
-function Login() {
+function Login({ setAuth }) { // Accept setAuth as a prop
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -27,7 +27,8 @@ function Login() {
 
       if (response.status === 200) {
         localStorage.setItem("authToken", response.data.token);
-        navigate("/dashboard");
+        setAuth(true); // Update the authentication state
+        navigate("/dashboard"); // Redirect to the dashboard
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Check credentials.");

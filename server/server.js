@@ -26,10 +26,10 @@ const pool = new Pool({
 // JWT Middleware
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Access denied" });
+  if (!token) return res.status(401).json({ message: "Access denied. Token missing." });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
+    if (err) return res.status(403).json({ message: "Invalid or expired token." });
     req.user = user;
     next();
   });
@@ -40,16 +40,13 @@ app.post("/api/register", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
 
-    // Check if user already exists
     const userCheck = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (userCheck.rows.length > 0) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User already exists." });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert the new user
     const newUser = await pool.query(
       "INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email",
       [firstName, lastName, email, hashedPassword]
@@ -58,8 +55,8 @@ app.post("/api/register", async (req, res) => {
     const user = newUser.rows[0];
     res.status(201).json({ user });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("Registration error:", err.message);
+    res.status(500).json({ message: "Server error during registration." });
   }
 });
 
@@ -70,35 +67,34 @@ app.post("/api/login", async (req, res) => {
 
     const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (userResult.rows.length === 0) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid email or password." });
     }
 
     const user = userResult.rows[0];
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid email or password." });
     }
 
-    // Generate a JWT token
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({ token, message: "Login successful" });
+    res.status(200).json({ token, message: "Login successful." });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", err.message);
+    res.status(500).json({ message: "Server error during login." });
   }
 });
 
 // Protected dashboard route
 app.get("/api/dashboard", authenticateToken, (req, res) => {
-  res.status(200).json({ message: "Welcome to your dashboard", user: req.user });
+  res.status(200).json({ message: "Welcome to your dashboard!", user: req.user });
 });
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

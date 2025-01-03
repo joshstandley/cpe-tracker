@@ -4,6 +4,7 @@ import axiosWithAuth from "../utils/axiosWithAuth";
 
 function Dashboard() {
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true); // To manage loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,11 +15,17 @@ function Dashboard() {
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         navigate("/login");
+      } finally {
+        setLoading(false); // Stop the loading state
       }
     };
 
     fetchData();
   }, [navigate]);
+
+  if (loading) {
+    return <p>Loading...</p>; // Show this while fetching data
+  }
 
   return (
     <div>
