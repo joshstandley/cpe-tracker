@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosWithAuth from "../utils/axiosWithAuth";
 import WelcomeSection from "../components/WelcomeSection";
+import CredentialsSection from "../components/CredentialsSection";
 import "../styles/dashboard.css";
 
 function Dashboard() {
@@ -26,9 +27,9 @@ function Dashboard() {
     <div className="dashboard-container">
       <WelcomeSection />
       <div className="dashboard-content">
-        <h2>Dashboard Overview</h2>
+        <h1>Dashboard</h1>
         <p>{message}</p>
-        <p>Here you can manage your credentials, track CPE credits, and more.</p>
+        <CredentialsSection />
       </div>
     </div>
   );
