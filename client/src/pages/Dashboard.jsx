@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosWithAuth from "../utils/axiosWithAuth";
 import WelcomeSection from "../components/WelcomeSection";
 import CredentialsSection from "../components/CredentialsSection";
+import CPECreditsSection from "../components/CPECreditsSection";
 import "../styles/dashboard.css";
 
 function Dashboard() {
@@ -17,7 +18,7 @@ function Dashboard() {
         const response = await axiosWithAuth().get("/api/dashboard");
         setMessage(response.data.message);
       } catch (err) {
-        console.error("Error fetching dashboard data:", err);
+        console.error("Error fetching dashboard data:", err.message);
         navigate("/login");
       }
     };
@@ -25,9 +26,9 @@ function Dashboard() {
     const fetchUserCredentials = async () => {
       try {
         const response = await axiosWithAuth().get("/api/user/credentials");
-        setUserCredentials(response.data);
+        setUserCredentials(response.data || []);
       } catch (err) {
-        console.error("Error fetching user credentials:", err);
+        console.error("Error fetching user credentials:", err.message);
       }
     };
 
@@ -48,7 +49,7 @@ function Dashboard() {
 
         <section className="user-credentials-section">
           <h2>My Credentials</h2>
-          {userCredentials.length > 0 ? (
+          {userCredentials?.length > 0 ? (
             <div>
               <div className="user-credentials-container">
                 {userCredentials.map((credential) => (
@@ -67,6 +68,7 @@ function Dashboard() {
         </section>
 
         {isEditing && <CredentialsSection />}
+        <CPECreditsSection />
       </div>
     </div>
   );

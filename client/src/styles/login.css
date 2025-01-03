@@ -32,7 +32,7 @@
   
   .form-container button {
     padding: 1rem;
-    background-color: #007BFF;
+    background-color: #FF8C00;
     color: white;
     border: none;
     border-radius: 4px;
@@ -40,6 +40,6 @@
   }
   
   .form-container button:hover {
-    background-color: #0056b3;
+    background-color: #e07b00;
   }
   

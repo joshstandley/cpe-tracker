@@ -92,6 +92,58 @@ app.get("/api/user/credentials", authenticateToken, async (req, res) => {
   }
 });
 
+// Add CPE credit for a user
+app.post("/api/cpe-credits", authenticateToken, async (req, res) => {
+  try {
+    const { credentialId, cpeTypeId, hours, deliveryMethod, dateCompleted } = req.body;
+
+    if (!credentialId || !cpeTypeId || !hours || !deliveryMethod || !dateCompleted) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const newCredit = await pool.query(
+      `INSERT INTO user_cpe_credits (user_id, credential_id, cpe_type_id, hours, delivery_method, date_completed) 
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [req.user.id, credentialId, cpeTypeId, hours, deliveryMethod, dateCompleted]
+    );
+
+    res.status(201).json({ message: "CPE credit added successfully!", credit: newCredit.rows[0] });
+  } catch (err) {
+    console.error("Error adding CPE credit:", err.message);
+    res.status(500).json({ message: "Failed to add CPE credit." });
+  }
+});
+
+// Fetch all CPE types
+app.get("/api/cpe-types", async (req, res) => {
+  try {
+    const cpeTypes = await pool.query("SELECT id, name FROM cpe_types");
+    res.status(200).json({ types: cpeTypes.rows });
+  } catch (err) {
+    console.error("Error fetching CPE types:", err.message);
+    res.status(500).json({ message: "Failed to fetch CPE types." });
+  }
+});
+
+// Fetch all CPE credits for a user
+app.get("/api/cpe-credits", authenticateToken, async (req, res) => {
+  try {
+    const userCredits = await pool.query(
+      `SELECT c.id, c.hours, c.delivery_method, c.date_completed, ct.name AS cpe_type, cr.name AS credential 
+       FROM user_cpe_credits c
+       JOIN cpe_types ct ON c.cpe_type_id = ct.id
+       JOIN credentials cr ON c.credential_id = cr.id
+       WHERE c.user_id = $1`,
+      [req.user.id]
+    );
+
+    res.status(200).json({ credits: userCredits.rows });
+  } catch (err) {
+    console.error("Error fetching CPE credits:", err.message);
+    res.status(500).json({ message: "Failed to fetch CPE credits." });
+  }
+});
+
 // Register route
 app.post("/api/register", async (req, res) => {
   try {
