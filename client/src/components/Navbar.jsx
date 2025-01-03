@@ -1,11 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./../styles/navbar.css";
+import "../styles/navbar.css";
 
 function Navbar() {
   return (
-    <nav>
-      <div className="logo">CPE Tracker</div>
+    <nav className="navbar">
+      <div className="logo">
+        <Link to="/">CPE Tracker</Link>
+      </div>
       <ul className="menu">
         <li>
           <Link to="/">Home</Link>

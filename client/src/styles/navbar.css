@@ -1,4 +1,13 @@
 /* Navbar Styles */
+
+.logo a {
+  text-decoration: none;
+  color: white; /* Default logo color */
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
 nav {
   display: flex;
   justify-content: space-between;
