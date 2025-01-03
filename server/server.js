@@ -23,6 +23,8 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+app.locals.pool = pool;
+
 // JWT Middleware
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
@@ -34,6 +36,10 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
+
+// Routes
+app.use("/api/register", require("./routes/register"));
+app.use("/api/login", require("./routes/login"));
 
 // Start the server
 app.listen(port, () => {
