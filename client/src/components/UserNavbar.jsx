@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./../styles/navbar.css";
+import "../styles/navbar.css";
 
 function UserNavbar({ onLogout }) {
   return (
@@ -11,9 +11,9 @@ function UserNavbar({ onLogout }) {
           <Link to="/dashboard">Dashboard</Link>
         </li>
         <li>
-          <button onClick={onLogout} className="logout-button">
+          <Link to="/" onClick={onLogout}>
             Logout
-          </button>
+          </Link>
         </li>
       </ul>
     </nav>
