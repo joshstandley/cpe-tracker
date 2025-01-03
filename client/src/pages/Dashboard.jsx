@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosWithAuth from "../utils/axiosWithAuth";
 import WelcomeSection from "../components/WelcomeSection";
-import CredentialsSection from "../components/CredentialsSection";
 import CPECreditsSection from "../components/CPECreditsSection";
 import "../styles/dashboard.css";
 
 function Dashboard() {
   const [message, setMessage] = useState("");
   const [userCredentials, setUserCredentials] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,10 +34,6 @@ function Dashboard() {
     fetchUserCredentials();
   }, [navigate]);
 
-  const handleEditClick = () => {
-    setIsEditing((prev) => !prev); // Toggle edit mode
-  };
-
   return (
     <div className="dashboard-container">
       <WelcomeSection />
@@ -47,27 +41,42 @@ function Dashboard() {
         <h1>Dashboard</h1>
         <p>{message}</p>
 
-        <section className="user-credentials-section">
-          <h2>My Credentials</h2>
+        <section className="cpe-progress-section">
+          <h2>Your CPE Progress</h2>
           {userCredentials?.length > 0 ? (
-            <div>
-              <div className="user-credentials-container">
-                {userCredentials.map((credential) => (
-                  <div key={credential.id} className="user-credential-card">
-                    {credential.name}
+            <div className="cpe-progress-container">
+              {userCredentials.map((credential) => (
+                <div key={credential.id} className="cpe-progress-card">
+                  <div className="credential-header">
+                    <h3>{credential.name}</h3>
                   </div>
-                ))}
-              </div>
-              <button className="edit-button" onClick={handleEditClick}>
-                {isEditing ? "Cancel" : "Edit Credentials"}
-              </button>
+                  <div className="progress-details">
+                    <p>
+                      Completed: <strong>{credential.completed || 0}</strong> /{" "}
+                      {credential.required || "TBD"} hours
+                    </p>
+                    <div className="progress-bar-container">
+                      <div
+                        className="progress-bar"
+                        style={{
+                          width: `${
+                            (credential.completed / credential.required) * 100 || 0
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                    <p className="deadline">
+                      Deadline: {credential.deadline || "No deadline set"}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <p>No credentials added yet.</p>
           )}
         </section>
 
-        {isEditing && <CredentialsSection />}
         <CPECreditsSection />
       </div>
     </div>

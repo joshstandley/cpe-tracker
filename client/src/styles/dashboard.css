@@ -1,60 +1,64 @@
 .dashboard-container {
-    padding: 20px;
-    background-color: #f4f4f4;
-    min-height: 100vh;
-  }
-  
-  .dashboard-content {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dashboard-content h2 {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .dashboard-content p {
-    font-size: 1.2rem;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .user-credentials-section {
-    margin-top: 20px;
-  }
-  
-  .user-credentials-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .user-credential-card {
-    padding: 10px 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333;
-  }
+  padding: 20px;
+  background-color: var(--background-color);
+  min-height: 100vh;
+}
 
-  .edit-button {
-    margin-top: 10px;
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .edit-button:hover {
-    background-color: #0056b3;
-  }
-  
+.dashboard-content {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-content h2 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.cpe-progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cpe-progress-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.credential-header h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.progress-details {
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.progress-bar-container {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 10px;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  background-color: var(--accent-color);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.deadline {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  margin-top: 5px;
+}
