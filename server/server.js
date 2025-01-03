@@ -35,6 +35,41 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Fetch credentials
+app.get("/api/credentials", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT id, name FROM credentials");
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Error fetching credentials:", err.message);
+    res.status(500).json({ message: "Failed to fetch credentials." });
+  }
+});
+
+// Save user-selected credentials
+app.post("/api/user/credentials", authenticateToken, async (req, res) => {
+  try {
+    const { selectedCredentials } = req.body;
+
+    // Delete existing user credentials
+    await pool.query("DELETE FROM user_credentials WHERE user_id = $1", [req.user.id]);
+
+    // Insert the new user credentials
+    const insertQuery = `
+      INSERT INTO user_credentials (user_id, credential_id) 
+      VALUES ($1, $2)
+    `;
+    for (const credentialId of selectedCredentials) {
+      await pool.query(insertQuery, [req.user.id, credentialId]);
+    }
+
+    res.status(200).json({ message: "User credentials saved successfully." });
+  } catch (err) {
+    console.error("Error saving user credentials:", err.message);
+    res.status(500).json({ message: "Server error while saving user credentials." });
+  }
+});
+
 // Register route
 app.post("/api/register", async (req, res) => {
   try {
@@ -109,45 +144,6 @@ app.get("/api/dashboard", authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("Dashboard error:", err.message);
     res.status(500).json({ message: "Server error during dashboard access." });
-  }
-});
-
-// Fetch all available credentials
-app.get("/api/credentials", authenticateToken, async (req, res) => {
-  try {
-    const credentials = await pool.query("SELECT id, name FROM credentials");
-    res.status(200).json(credentials.rows);
-  } catch (err) {
-    console.error("Error fetching credentials:", err.message);
-    res.status(500).json({ message: "Server error while fetching credentials." });
-  }
-});
-
-// Save user's selected credentials
-app.post("/api/user-credentials", authenticateToken, async (req, res) => {
-  try {
-    const { credentialIds } = req.body;
-
-    if (!Array.isArray(credentialIds) || credentialIds.length === 0) {
-      return res.status(400).json({ message: "Invalid credential selection." });
-    }
-
-    // Clear existing credentials for the user
-    await pool.query("DELETE FROM user_credentials WHERE user_id = $1", [req.user.id]);
-
-    // Add the new credentials
-    const insertPromises = credentialIds.map((credentialId) =>
-      pool.query("INSERT INTO user_credentials (user_id, credential_id) VALUES ($1, $2)", [
-        req.user.id,
-        credentialId,
-      ])
-    );
-    await Promise.all(insertPromises);
-
-    res.status(200).json({ message: "Credentials updated successfully." });
-  } catch (err) {
-    console.error("Error saving user credentials:", err.message);
-    res.status(500).json({ message: "Server error while saving credentials." });
   }
 });
 
