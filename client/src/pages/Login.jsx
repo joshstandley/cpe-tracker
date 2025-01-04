@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3000/api/login', { email, password });
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.data.token); // Ensure this line is correct
       setMessage('Login successful!');
       navigate('/dashboard');
     } catch (err) {

@@ -2,8 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 dotenv.config();
 
@@ -25,21 +23,10 @@ const pool = new Pool({
 
 app.locals.pool = pool;
 
-// JWT Middleware
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Access denied. Token missing." });
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid or expired token." });
-    req.user = user;
-    next();
-  });
-};
-
 // Routes
 app.use("/api/register", require("./routes/register"));
 app.use("/api/login", require("./routes/login"));
+app.use("/api/dashboard", require("./routes/dashboard"));
 
 // Start the server
 app.listen(port, () => {
