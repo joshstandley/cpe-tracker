@@ -29,6 +29,7 @@ app.use("/api/login", require("./routes/login"));
 app.use("/api/dashboard", require("./routes/dashboard"));
 app.use("/api/profile", require("./routes/profile"));
 app.use("/api/cpe_activities", require("./routes/cpe_activities")); // Add CPE activities route
+app.use("/api/credentials", require("./routes/credentials")); // Add credentials route
 
 // Start the server
 app.listen(port, () => {

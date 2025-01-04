@@ -1,15 +1,53 @@
+:root {
+  --primary-color: #4CAF50; /* Green */
+  --secondary-color: #FF9800; /* Orange */
+  --background-color: #f4f4f4; /* Light Gray */
+  --text-color: #333; /* Dark Gray */
+  --link-color: #4CAF50; /* Green */
+  --link-hover-color: #FF9800; /* Orange */
+}
+
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  h1, h2 {
-    color: #333;
-  }
-  
-  p {
-    color: #666;
-  }
-  
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-color);
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--link-hover-color);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  padding: 1rem;
+}

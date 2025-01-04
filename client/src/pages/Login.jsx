@@ -12,9 +12,10 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:3000/api/login', { email, password });
-      localStorage.setItem('token', response.data.token); // Ensure this line is correct
+      localStorage.setItem('token', response.data.token);
       setMessage('Login successful!');
       navigate('/dashboard');
+      window.location.reload(); // Reload to update the navbar
     } catch (err) {
       setMessage('Login failed. Please try again.');
     }
