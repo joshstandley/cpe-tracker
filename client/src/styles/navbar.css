@@ -2,12 +2,12 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--primary-color);
+  background-color: var(--text-secondary-color);
   padding: 1rem;
 }
 
 .navbar-logo a {
-  color: white;
+  color: var(--background-color);
   font-size: 1.5rem;
   text-decoration: none;
 }
@@ -24,7 +24,7 @@ nav {
 }
 
 .navbar-links li a {
-  color: white;
+  color: var(--background-color);
   text-decoration: none;
 }
 
