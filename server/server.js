@@ -27,6 +27,7 @@ app.locals.pool = pool;
 app.use("/api/register", require("./routes/register"));
 app.use("/api/login", require("./routes/login"));
 app.use("/api/dashboard", require("./routes/dashboard"));
+app.use("/api/profile", require("./routes/profile")); // Add profile route
 
 // Start the server
 app.listen(port, () => {
